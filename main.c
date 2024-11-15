@@ -10,8 +10,8 @@ int main()
     do
     {
         srand(time(NULL));
-        int rows = validate_int_input("Enter n size of SLAE\n", 1, 10);
-        double epsilon = validate_double_input("Enter precision epsilon:\n", 1e-15, 1e-1);
+        int rows = validate_int_input("Enter n size of SLAE[1, 10]:\n", 1, 10);
+        double epsilon = validate_double_input("Enter precision epsilon [1e-15, 1e-1]:\n", 1e-15, 1e-1);
         double *b = calloc(rows, sizeof(double));
         double *x = calloc(rows, sizeof(double));
         double *xp = calloc(rows, sizeof(double));
@@ -53,7 +53,6 @@ int main()
         printf("\n");
         calculate_slae(a, b, xp, x , rows, epsilon);
         print_elements("x", x ,rows, precision );
-        //freeing memory
         free(xp);
         free(x);
         free(b);
