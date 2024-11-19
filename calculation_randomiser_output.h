@@ -6,10 +6,13 @@ void calculate_slae(double **a, double *b, double *xp, double *x, int rows, doub
     double max_delta = 0;
     do
     {
-        for (int i = 0; i < rows; i++) {
+        for (int i = 0; i < rows; i++)
+            {
             double sum = 0;
-            for (int j = 0; j < rows; j++) {
-                if (j != i) {
+            for (int j = 0; j < rows; j++)
+                {
+                if (j != i)
+                {
                     sum += a[i][j] * xp[j];
                 }
             }
@@ -32,9 +35,17 @@ void generate_random_a_elements(double min, double max, double **arr, int rows)
 {
     for (int i = 0; i < rows; i++)
     {
+        double max_offdiagonal_elements = 0;
         for (int j = 0; j < rows; j++)
         {
-            arr[i][j] = (double)rand() + (rand() + (rand() / (double)RAND_MAX)) / (RAND_MAX + 1.0);
+            if (i == j) {
+                arr[i][j] = fabs ((max - min) * ( (double)rand() / (double)RAND_MAX ) + min);
+                max_offdiagonal_elements = arr[i][j] / (double) rows;
+            }
+            else {
+                arr[i][j] = (max_offdiagonal_elements - min) * ( (double)rand() / (double)RAND_MAX ) + min;
+            }
+
         }
     }
 }
@@ -42,14 +53,14 @@ void generate_random_b_elements(double min, double max, double *arr, int rows)
 {
     for (int i = 0; i < rows; i++)
     {
-        arr[i]= (double)rand() + (rand() + (rand() / (double)RAND_MAX)) / (RAND_MAX + 1.0);
+        arr[i]= (max - min) * ( (double)rand() / (double)RAND_MAX ) + min;
     }
 }
 void print_elements(char *label, double *arr, int rows, int precision)
 {
     for (int i = 0; i < rows; i++)
     {
-        printf("%s[%d] = %.*lf\n", label, i+1, precision, arr[i]);
+        printf("%s[%02d] = %.*lf\n", label, i+1, precision, arr[i]);
     }
 }
 #endif

@@ -1,6 +1,14 @@
 #ifndef VALIDATION_H
 #define VALIDATION_H
 #include <conio.h>
+void validate_memory_allocation(double *array) {
+    do {
+        if (array == NULL) {
+            printf("Memory allocation failed\n");
+            free(array);
+        }
+    }while(array == NULL);
+}
 int validate_int_input(char *prompt, int min, int max)
 {
     int value = 0 ;
@@ -12,7 +20,6 @@ int validate_int_input(char *prompt, int min, int max)
         if (input != 1 || value < min || value > max)
         {
             printf("Invalid input. Please enter a valid number.\n");
-            value = 0;
         }
         fflush(stdin);
     }
@@ -30,7 +37,6 @@ double validate_double_input(const char *prompt, double min, double max)
         if (input != 1 || value < min || value > max)
         {
             printf("Invalid input. Please enter a valid number.\n");
-            value = 0;
         }
         fflush(stdin);
     }
