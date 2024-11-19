@@ -4,11 +4,13 @@ void calculate_slae(double **a, double *b, double *xp, double *x, int rows, doub
 {
     int iterations = 0;
     double max_delta = 0;
+    double sum = 0;
     do
     {
+        max_delta = 0;
         for (int i = 0; i < rows; i++)
             {
-            double sum = 0;
+
             for (int j = 0; j < rows; j++)
                 {
                 if (j != i)

@@ -5,4 +5,4 @@ set(CMAKE_C_STANDARD 99)
 
 add_executable(KP_6 main.c
         calculation_randomiser_output.h
-        validation.h)
+        input_and_validation.h)

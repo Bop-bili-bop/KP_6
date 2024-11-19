@@ -1,13 +1,13 @@
 #ifndef VALIDATION_H
 #define VALIDATION_H
 #include <conio.h>
-void validate_memory_allocation(double *array) {
-    do {
-        if (array == NULL) {
-            printf("Memory allocation failed\n");
-            free(array);
-        }
-    }while(array == NULL);
+void validate_memory_allocation(double *array)
+{
+    if (array == NULL) {
+        printf("Memory allocation failed\n");
+        free(array);
+        getch();
+    }
 }
 int validate_int_input(char *prompt, int min, int max)
 {
