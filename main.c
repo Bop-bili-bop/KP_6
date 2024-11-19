@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
+#include <conio.h>
 #include "calculation_randomiser_output.h"
 #include "input_and_validation.h"
-#include <time.h>
-#include <conio.h>"
-#define ROWS_MIN 0
+
+#define ROWS_MIN 1
 #define ROWS_MAX 10
 #define RANDOM_MIN -100
 #define RANDOM_MAX 100
@@ -17,115 +18,110 @@ int main()
 
         int rows = validate_int_input("Enter n size of SLAE[1, 10]:\n", ROWS_MIN, ROWS_MAX);
         double epsilon = validate_double_input("Enter precision epsilon [1e-15, 1e-1]:\n", 1e-15, 1e-1);
+
         double *b = calloc(rows, sizeof(double));
-        if(b == NULL) {
-            printf("Memory allocation error!!!");
-            getch();
-            return 1;
-        }
         double *x = calloc(rows, sizeof(double));
-        if(x == NULL) {
-            getch();
-            printf("Memory allocation error!!!");
-            return 1;
-        }
         double *xp = calloc(rows, sizeof(double));
-        if(xp == NULL) {
-            getch();
-            printf("Memory allocation error!!!");
-            return 1;
-        }
         double **a = calloc(rows, sizeof(double *));
-        if(a == NULL) {
+        if (!b || !x || !xp || !a)
+        {
+            printf("Memory allocation error!\n");
+            free_arrays(b, x, xp, a, rows);
             getch();
-            printf("Memory allocation error!!!");
             return 1;
         }
-        int precision = fabs(log10(epsilon));
         for (int i = 0; i < rows; i++)
         {
             a[i] = calloc(rows, sizeof(double));
+            if (!a[i])
+            {
+                printf("Memory allocation error!\n");
+                free_arrays(b, x, xp, a, rows);
+                getch();
+                return 1;
+            }
         }
+
+        int precision = fabs(log10(epsilon));
         char choice = validate_char_input("Press 'r' to randomly generate the elements or 'm' to enter them manually\n", 'r', 'm');
+
         switch (choice)
         {
-            case 'm':
-                for (int i = 0; i < rows; i++)
+        case 'm':
+            double diagonal_element = 0;
+            double off_diagonal_elements_sum = 0;
+            for (int i = 0; i < rows; i++)
+            {
+                diagonal_element = 0.0;
+                do
                 {
-                    double diagonal_element = 0;
-                    double off_diagonal_elements_sum = 0;
-                    do
+                    off_diagonal_elements_sum = 0.0;
+                    printf("Enter %d element(s) of row #%d\n", rows, i + 1);
+                    for (int j = 0; j < rows; j++)
                     {
-                        diagonal_element = 0;
-                        off_diagonal_elements_sum = 0;
-                        for (int j = 0; j < rows; j++)
+                        a[i][j] = validate_double_input("[-2147483646, 2147483646]: ", -2147483646.0, 2147483646.0);
+                        if (i == j)
                         {
-                            printf("Enter %d element(a) of row #%d\n", j+1, i+1);
-                            a[i][j] = validate_double_input("[-2147483646, 2147483646]: ", -2147483646, 2147483646);
-                            if(i == j)
-                            {
-                                diagonal_element = fabs(a[i][i]);
-                            }
-                            else
-                            {
-                                off_diagonal_elements_sum += fabs(a[i][j]);
-                            }
+                            diagonal_element = fabs(a[i][j]);
                         }
-                        if(diagonal_element <= off_diagonal_elements_sum)
+                        else
                         {
-                            printf("Invalid row: a[%d][%d] = %.*lf is not greater than the sum of other elements = %.*lf.\n",
-                            i + 1, i + 1, precision, diagonal_element, precision, off_diagonal_elements_sum);
-                            printf("Please re-enter the entire row #%d.\n", i + 1);
+                            off_diagonal_elements_sum += fabs(a[i][j]);
                         }
                     }
-                    while (diagonal_element <= off_diagonal_elements_sum);
-                    printf("Enter b of #%d row: \n", i+1);
-                    b[i] = validate_double_input("[-2147483646, 2147483646]: ", -2147483646, 2147483646);
-                }
-                break;
-            case 'r':
-                generate_random_a_elements(RANDOM_MIN, RANDOM_MAX, a, rows);
-                generate_random_b_elements(RANDOM_MIN, RANDOM_MAX, b, rows);
-                break;
-            default:
-                break;
+                    if (diagonal_element <= off_diagonal_elements_sum)
+                    {
+                        printf("Invalid row: a[%d][%d] = %.*lf is not greater than the sum of other elements = %.*lf.\n",
+                               i + 1, i + 1, precision, diagonal_element, precision, off_diagonal_elements_sum);
+                        printf("Please re-enter the entire row #%d.\n", i + 1);
+                    }
+                } while (diagonal_element <= off_diagonal_elements_sum);
+                printf("Enter b of #%d row: \n", i + 1);
+                b[i] = validate_double_input("[-2147483646, 2147483646]: ", -2147483646, 2147483646);
+            }
+            break;
+
+        case 'r':
+            generate_random_a_elements(RANDOM_MIN, RANDOM_MAX, a, rows);
+            generate_random_b_elements(RANDOM_MIN, RANDOM_MAX, b, rows);
+            break;
+
+        default:
+            printf("Error\n");
+            free_arrays(b, x, xp, a, rows);
+            return 1;
         }
-        printf("\n");
+
+        printf("\nMatrix:\n");
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < rows; j++)
             {
-                printf("|%*.*lf*x[%02d] ", precision+5, precision, a[i][j], i+1);
+                printf("|%*.*lf*x[%02d] ", precision + 5, precision, a[i][j], j + 1);
             }
-            printf(" = %2.*lf", precision, b[i]);
-            printf("\n");
+            printf(" = %.*lf\n", precision, b[i]);
         }
-        //
-        print_elements("b", b, rows, precision);
-        printf("\n");
-        calculate_slae(a, b, xp, x , rows, epsilon);
-        print_elements("x", x ,rows, precision );
+
+        calculate_slae(a, b, xp, x, rows, epsilon);
+
+        printf("\nSolution x:\n");
+        print_elements("x", x, rows, precision);
+
+        printf("\nb after substitution of the value of x and difference delta b:\n");
         double sum_of_row = 0;
-        printf("b after substitution of the value of x\n");
         for (int i = 0; i < rows; i++)
         {
             sum_of_row = 0;
             for (int j = 0; j < rows; j++)
             {
-                sum_of_row += a[i][j]*x[j];
+                sum_of_row += a[i][j] * x[j];
             }
-            printf("b[%02d] = %.*lf\n", i+1, precision, sum_of_row);
+            printf("b[%02d] = %.*lf\t delta b[%02d] = %.*e\n", i + 1, precision, sum_of_row, i+1, precision, fabs(sum_of_row - b[i]));
         }
-        free(xp);
-        free(x);
-        free(b);
-        for (int i = 0; i < rows; i++)
-        {
-            free(a[i]);
-        }
-        free(a);
+
+        free_arrays(b, x, xp, a, rows);
+
         printf("Press q to quit, any other key to continue...\n");
-    }
-    while (getch() != 'q');
+    } while (getch() != 'q');
     return 0;
 }

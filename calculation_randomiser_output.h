@@ -2,19 +2,17 @@
 #define X_I_CALCULATIONS_H
 void calculate_slae(double **a, double *b, double *xp, double *x, int rows, double epsilon)
 {
-    int iterations = 0;
     double max_delta = 0;
     double sum = 0;
     do
     {
-        max_delta = 0;
+        max_delta = 0.0;
         for (int i = 0; i < rows; i++)
-            {
-
+        {
+            sum = 0.0;
             for (int j = 0; j < rows; j++)
-                {
-                if (j != i)
-                {
+            {
+                if (j != i) {
                     sum += a[i][j] * xp[j];
                 }
             }
@@ -29,26 +27,24 @@ void calculate_slae(double **a, double *b, double *xp, double *x, int rows, doub
         {
             xp[i] = x[i];
         }
-        iterations++;
     }
-    while (max_delta < epsilon);
+    while (max_delta > epsilon);
 }
 void generate_random_a_elements(double min, double max, double **arr, int rows)
 {
+    double off_diagonal_sum = 0;
     for (int i = 0; i < rows; i++)
     {
-        double max_offdiagonal_elements = 0;
+        off_diagonal_sum = 0.0;
         for (int j = 0; j < rows; j++)
         {
-            if (i == j) {
-                arr[i][j] = fabs ((max - min) * ( (double)rand() / (double)RAND_MAX ) + min);
-                max_offdiagonal_elements = arr[i][j] / (double) rows;
+            if (i != j)
+            {
+                arr[i][j] = (max - min) * ((double)rand() / (double)RAND_MAX) + min;
+                off_diagonal_sum += fabs(arr[i][j]);
             }
-            else {
-                arr[i][j] = (max_offdiagonal_elements - min) * ( (double)rand() / (double)RAND_MAX ) + min;
-            }
-
         }
+        arr[i][i] = off_diagonal_sum + ((max - min) * ((double)rand() / (double)RAND_MAX)) + 1.0;
     }
 }
 void generate_random_b_elements(double min, double max, double *arr, int rows)
